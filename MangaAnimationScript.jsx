@@ -10,17 +10,65 @@ groupOne.orientation = "column";
 // global variable
 var mainComp;
 var mainLayer;
-var fps; //fps offset
-var layerCounts; //counts of layer
+var fps; // fps offset
+var layerCounts; // counts of layer
 
 // layer Info
 var mangaArray = new Array();
-var manga = {
+
+
+try 
+{
+//CompItems
+mainComp = app.project.activeItem;
+mainLayer = mainComp.layer(1);
+layerCounts = mainComp.numLayers;
+fps = Math.round(mainComp.frameRate)/30; //offset of frame rate
+
+bakeButton.onClick = function()
+{
+    mangaArray = setLayerInfo();
+}
+
+}
+catch(e)
+{
+    alert("No Comp or Layer exist");
+}
+
+function setLayerInfo( )
+{
     
+    var mangaArr = new Array();
+    var layername;
+    var currentPageSize = 1;
+    for(var i =  0; i < layerCounts; i++)
+    {
+        mangaArr[i] = setPara(mainComp.layer(i+1).name);
+    }
+    for(var i = 1 ; i < layerCounts; i++)
+    {
+        
+        if(mangaArr[i].pages.top != mangaArr[i-1].pages.top || i == (layerCounts-1))
+        {
+            var size = mangaArr[i-1].pages.order;
+            alert(size);
+            for(var j = 0 ; j < size ; j++)
+            {
+                mangaArr[i-1-j].srcInfo.pageCount = size;
+            }
+        }
+    }
+    return mangaArr;
+}
+function setPara(layername)
+{
+    var manga = {
     srcInfo:
     {
         width:0,
-        height:0
+        height:0,
+        pageCount:0
     },
     pages:
     {
@@ -31,46 +79,10 @@ var manga = {
     }
 };
 
-try 
-{
-//CompItems
-mainComp = app.project.activeItem;
-mainLayer = mainComp.layer(1);
-layerCounts = mainComp.numLayers;
-fps = Math.round(mainComp.frameRate)/30;
-
-bakeButton.onClick = function()
-{
-    mangaArray[layerCounts-1] = manga;
-    for(var i = 0 ; i < layerCounts;i++)
-    {
-        mangaArray[i] = manga;
-    }
-    alert("work");
-   // Array.forEach(mangaArray,setLayerInfo,null);
-    alert("works");
-    alert(parseInt(mangaArray[2].srcInfo.width));
-    alert(parseInt(mainLayer.name.substr(4,2)));
-    alert(parseInt(mainLayer.name.substr(7,2)));
-    mainLayer.inPoint = 10;
-    mainLayer.outPoint = 20;
+    manga.pages.page = parseInt(layername.substr(0,3));
+    manga.pages.top = parseInt(layername.substr(4,2)); // 在整個畫面中屬於第幾層
+    manga.pages.order = parseInt(layername.substr(7,2)); // 在同一層中由左到右第幾個
+    return manga;
 }
-
-}
-catch(e)
-{
-    alert("No Comp or Layer exist");
-}
-function setLayerInfo( element , index , array )
-{
-    alert("into function");
-    var layername = mainLayer(index + 1);
-    var strIndex = 0;
-    element.pages.page = parseInt(layername.name.substr(0,3));
-    element.pages.top = parseInt(layername.name.substr(4,2));
-    element.pages.order = parseInt(layername.name.substr(7,2));
-    
-}
-
 mainWindow.show();
 mainWindow.center();
