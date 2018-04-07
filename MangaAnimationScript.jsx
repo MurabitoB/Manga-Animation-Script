@@ -29,7 +29,6 @@ bakeButton.onClick = function()
 {
     mangaArray = setLayerInfo();
 }
-
 }
 catch(e)
 {
@@ -42,20 +41,30 @@ function setLayerInfo( )
     var mangaArr = new Array();
     var layername;
     var currentPageSize = 1;
+    //按照圖層順序塞資訊
     for(var i =  0; i < layerCounts; i++)
     {
         mangaArr[i] = setPara(mainComp.layer(i+1).name);
     }
-    for(var i = 1 ; i < layerCounts; i++)
-    {
-        
-        if(mangaArr[i].pages.top != mangaArr[i-1].pages.top || i == (layerCounts-1))
+    //倒序判斷order
+    for(var i = layerCounts - 2  ; i >= 0; i--)
+    {       
+        if(mangaArr[i].pages.top != mangaArr[i + 1].pages.top || mangaArr[i].pages.page != mangaArr[i + 1].pages.page)
         {
-            var size = mangaArr[i-1].pages.order;
-            alert(size);
+            var size = mangaArr[i + 1].pages.order;
+       //     alert(size);
             for(var j = 0 ; j < size ; j++)
             {
-                mangaArr[i-1-j].srcInfo.pageCount = size;
+                mangaArr[i + 1 + j].srcInfo.pageCount = size;
+            }
+        }
+        else if (i == 0)
+        {
+            var size = mangaArr[i].pages.order;
+        //    alert(size);
+            for(var j = 0 ; j < size ; j++)
+            {
+                mangaArr[i + j].srcInfo.pageCount = size;
             }
         }
     }
@@ -78,7 +87,6 @@ function setPara(layername)
         totalOrder: 0
     }
 };
-
     manga.pages.page = parseInt(layername.substr(0,3));
     manga.pages.top = parseInt(layername.substr(4,2)); // 在整個畫面中屬於第幾層
     manga.pages.order = parseInt(layername.substr(7,2)); // 在同一層中由左到右第幾個
