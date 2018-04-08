@@ -1,10 +1,11 @@
 ﻿//make UI
 var mainWindow = new Window("palette","Mura auto Animation",undefined);
+mainWindow.add("image",undefined,"C:/img2.png");
 var groupOne = mainWindow.add("group",undefined,"groupOne");
 groupOne.add("statictext",undefined,"The prototype of auto animaiton");
 var bakeButton = groupOne.add("Button",undefined,"Bake");
-var srcWidth = groupOne.add("edittext",undefined,"width"); //get value  = srcWidth.text
-var srcHeight = groupOne.add("edittext",undefined,"height");
+//var srcWidth = groupOne.add("edittext",undefined,"width"); //get value  = srcWidth.text
+//var srcHeight = groupOne.add("edittext",undefined,"height");
 groupOne.orientation = "column";
 
 // global variable
@@ -27,24 +28,31 @@ fps = Math.round(mainComp.frameRate)/30; //offset of frame rate
 
 bakeButton.onClick = function()
 {
+    setMid(mainLayer.width / 2)
     mangaArray = setLayerInfo();
+    alert(mainLayer.height);
 }
 }
 catch(e)
 {
     alert("No Comp or Layer exist");
 }
-
+function setMid(mid)
+{
+    mainLayer.position.setValueAtTime([0],[0 + mid,0]);
+}
 function setLayerInfo( )
 {
-    
     var mangaArr = new Array();
     var layername;
     var currentPageSize = 1;
+    var group = 1;
     //按照圖層順序塞資訊
     for(var i =  0; i < layerCounts; i++)
     {
         mangaArr[i] = setPara(mainComp.layer(i+1).name);
+        mangaArr[i].srcInfo.width = mainComp.layer(i+1).width;
+        mangaArr[i].srcInfo.height = mainComp.layer(i+1).height;
     }
     //倒序判斷order
     for(var i = layerCounts - 2  ; i >= 0; i--)
@@ -52,20 +60,22 @@ function setLayerInfo( )
         if(mangaArr[i].pages.top != mangaArr[i + 1].pages.top || mangaArr[i].pages.page != mangaArr[i + 1].pages.page)
         {
             var size = mangaArr[i + 1].pages.order;
-       //     alert(size);
             for(var j = 0 ; j < size ; j++)
             {
                 mangaArr[i + 1 + j].srcInfo.pageCount = size;
+                mangaArr[i + 1 + j].srcInfo.group = group;
             }
+            group++;
         }
         else if (i == 0)
         {
             var size = mangaArr[i].pages.order;
-        //    alert(size);
             for(var j = 0 ; j < size ; j++)
             {
                 mangaArr[i + j].srcInfo.pageCount = size;
+                mangaArr[i + 1 + j].srcInfo.group = group;
             }
+            group++;
         }
     }
     return mangaArr;
@@ -77,7 +87,8 @@ function setPara(layername)
     {
         width:0,
         height:0,
-        pageCount:0
+        pageCount:0,
+        group:0
     },
     pages:
     {
