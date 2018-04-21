@@ -1,6 +1,6 @@
 ﻿//make UI
 var mainWindow = new Window("palette","Mura auto Animation",undefined);
-mainWindow.add("image",undefined,"C:/img2.png");
+//mainWindow.add("image",undefined,"C:/img.png");
 var groupOne = mainWindow.add("group",undefined,"groupOne");
 groupOne.add("statictext",undefined,"The prototype of auto animaiton");
 var bakeButton = groupOne.add("Button",undefined,"Bake");
@@ -30,7 +30,8 @@ bakeButton.onClick = function()
 {
     setMid(mainLayer.width / 2)
     mangaArray = setLayerInfo();
-    alert(mainLayer.height);
+    cutLayerTime(mangaArray);
+    alert(mangaArray[0].srcInfo.group);
 }
 }
 catch(e)
@@ -73,7 +74,7 @@ function setLayerInfo( )
             for(var j = 0 ; j < size ; j++)
             {
                 mangaArr[i + j].srcInfo.pageCount = size;
-                mangaArr[i + 1 + j].srcInfo.group = group;
+                mangaArr[i + j].srcInfo.group = group;
             }
             group++;
         }
@@ -88,7 +89,7 @@ function setPara(layername)
         width:0,
         height:0,
         pageCount:0,
-        group:0
+        group:0,
     },
     pages:
     {
@@ -102,6 +103,30 @@ function setPara(layername)
     manga.pages.top = parseInt(layername.substr(4,2)); // 在整個畫面中屬於第幾層
     manga.pages.order = parseInt(layername.substr(7,2)); // 在同一層中由左到右第幾個
     return manga;
+}
+function cutLayerTime(layerArr)
+{
+    
+    var start = 0;
+    var duration = 1;
+    var groupT = 1;
+    for(var i = layerCounts-1; i >= 0 ;i--)
+    {
+       
+        if(groupT != layerArr[i].srcInfo.group)
+        {
+            start++;
+            groupT++;
+        }
+        layerDuration(mainComp.layer(i+1),start,duration);
+    }
+   
+}
+function layerDuration(layer,startTime,layerDuration)
+{
+    alert("do");
+    layer.inPoint = startTime ;
+    layer.outPoint = startTime + layerDuration;
 }
 mainWindow.show();
 mainWindow.center();
