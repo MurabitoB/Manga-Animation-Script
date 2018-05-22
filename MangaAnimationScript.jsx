@@ -35,6 +35,7 @@ bakeButton.onClick = function()
     cutLayerTime(mangaArray);
     setFinalPosition(mangaArray);
     setAllKeyframe(mainComp);
+    setVignette();
 }
 }
 catch(e)
@@ -113,7 +114,15 @@ function setLayerInfo( )
     }
     return mangaArr;
 }
+function setVignette()
+{
+var mySolid = mainComp.layers.addSolid([0,0,0], "Vignette filter", mainComp.width, mainComp.height,1);
+mySolid.startTime = 0
+mySolid.adjustmentLayer = true;
+var cache = mySolid.effect.addProperty("CC Vignette");
+cache.property(1).setValue(190);    
 
+}
 //從檔名中切割資訊
 function setPara(layername)
 {
@@ -144,7 +153,7 @@ function setPara(layername)
 function cutLayerTime(layerArr)
 {
     var start = 0;
-    var duration = 3.5;
+    var duration = 5.5;
     var groupT = 1;
     for(var i = layerCounts-1; i >= 0 ;i--)
     {
@@ -167,6 +176,13 @@ function setFinalPosition(layerArr)
        mainComp.layer(i+1).position.setValue([ compWidth / (1 + layerArr[i].srcInfo.pageCount) * layerArr[i].pages.order , halfCompHeight]);
     }
 }
+function setBlur(layer,startPoint,endPoint)
+{
+  
+   var blur = layer.effect.addProperty("Fast Blur (legacy)");
+   blur.property(1).setValueAtTime(startPoint,0);
+   blur.property(1).setValueAtTime(endPoint,100);
+}
 //設定圖層起始點和終點
 function layerDuration(layer,startTime,layerDuration)
 {
@@ -181,11 +197,12 @@ function setPositionKeyframe(layer)
     var noise = Math.random();
     var compHalfWidth = mainComp.width / 2;
     var compHalfHeight = mainComp.height / 2;
-    var animationTime = 2;
+    var animationTime = 4;
     layer.opacity.setValueAtTime(layer.inPoint,0);
     layer.opacity.setValueAtTime(layer.inPoint+0.5,100);
     layer.opacity.setValueAtTime(layer.outPoint-0.5,100);
     layer.opacity.setValueAtTime(layer.outPoint,0);
+    setBlur(layer,layer.inPoint + 1.5,layer.outPoint);
     if(Math.random()> 0.75) //從右邊進場
     { 
       layer.position.setValueAtTime(layer.inPoint, [finalX + compHalfWidth * noise ,finalY]);
@@ -206,6 +223,10 @@ function setPositionKeyframe(layer)
       layer.position.setValueAtTime(layer.inPoint, [finalX,finalY + compHalfHeight * noise]);
       layer.position.setValueAtTime(layer.outPoint - animationTime , [finalX,finalY]);
     }
+    var easeIn = new KeyframeEase(0.5, 50);
+    var easeOut = new KeyframeEase(0.75, 85);
+    layer.position.setTemporalEaseAtKey(1, [easeIn], [easeOut]);
+    layer.position.setTemporalEaseAtKey(2, [easeIn], [easeOut]);
 }
 function setAllOpacity()
 {
